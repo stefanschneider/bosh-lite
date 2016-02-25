@@ -1,10 +1,18 @@
 Vagrant.configure('2') do |config|
   config.vm.box = 'cloudfoundry/bosh-lite'
 
+  config.vm.provision "shell", run: "always", inline: "route add  -net 10.11.0.0/16  gw 192.168.50.1"
+
   config.vm.provider :virtualbox do |v, override|
     override.vm.box_version = '9000.109.0' # ci:replace
     # To use a different IP address for the bosh-lite director, uncomment this line:
     # override.vm.network :private_network, ip: '192.168.59.4', id: :local
+    # override.vm.network :private_network, ip: '192.168.50.4', id: :local, nic_type: 'virtio'
+    # v.customize ['modifyvm', :id, '--nictype1', 'virtio']
+    # v.customize ["modifyvm", :id, "--paravirtprovider", "default"]
+    v.customize ["modifyvm", :id, "--pae", "off"]
+    # v.customize ["storagectl", :id, "--name", "SATA Controller", "--hostiocache", "off"]
+    v.customize ["storagectl", :id, "--name", "IDE Controller", "--hostiocache", "off"]
   end
 
   config.vm.provider :aws do |v, override|
